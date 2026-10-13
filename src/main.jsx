@@ -12,6 +12,8 @@ const categories = [
   { no: '06', title: 'Lifetime contribution', text: 'For a remarkable journey whose impact spans generations.' },
 ];
 const roles = ['Shakti Ambassador', 'Community Scout', 'Mentor', 'Volunteer', 'Incubation Partner', 'Buyer', 'Institutional Collaborator', 'Sponsor / CSR Partner'];
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ztpzadsxtngbxespsmbq.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_dk5opXVq293wA2R8f-atCg_BfvovyTl';
 const faqs = [
   ['Who can be nominated?', 'A woman whose work is creating positive change in Kodagu. Nominees may be entrepreneurs, farmers, artisans, community leaders, or emerging changemakers.'],
   ['Can I nominate myself?', 'Yes. Women may nominate themselves, or be nominated by someone who knows their work. We will ask for the nominee’s consent before a nomination is reviewed.'],
@@ -43,11 +45,10 @@ function App() {
   function setField(e) { setForm((prev) => ({ ...prev, [e.target.name]: e.target.value })); }
   async function submit(e) {
     e.preventDefault(); setError('');
-    const endpoint = import.meta.env.VITE_SUBMISSIONS_ENDPOINT;
-    if (!endpoint) { setError('Submissions are not open yet. Please email hello@shaktiawards.oohms.in and our team will help you.'); return; }
+    const endpoint = `${SUPABASE_URL}/functions/v1/submit`;
     setBusy(true);
     try {
-      const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, type: dialog, source: 'shakti-website', consent: true }) });
+      const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SUPABASE_PUBLISHABLE_KEY }, body: JSON.stringify({ ...form, type: dialog, source: 'shakti-website', consent: true }) });
       const body = await response.json().catch(() => ({}));
       if (!response.ok || !body.submissionId) throw new Error(body.message || 'We could not securely save your submission. Please try again.');
       setResult(body.submissionId);
